@@ -90,7 +90,7 @@ struct listoftrees *initialize_listoftrees(struct listoftrees *t ,int key1,int c
 void shiftfromleft(struct node *t){
     if(leaf(t)) return ;
     else if(sizeofn(t) < softsize/2){
-        if(t->left==NULL ){//|| (t->right==NULL && t->left->ckey > t->right->ckey)){
+        if(t->left==NULL ){
             struct node *temp=NULL;
             t->left = t->right;
             t->right = temp;
@@ -112,7 +112,7 @@ void shiftfromleft(struct node *t){
             while(x--) s = s->next;
             s->next = NULL;
         }
-        //if(leaf(t->left) && sizeofn(t->left)==0) t->left=NULL;
+        
         if(t->left!=NULL) shiftfromleft(t->left);
     }
 }
@@ -120,7 +120,7 @@ void shiftfromleft(struct node *t){
 void shiftfromright(struct node *t){
     if(leaf(t)) return ;
     else if(sizeofn(t) < softsize/2){
-        if(t->right==NULL ){//|| (t->right==NULL && t->left->ckey > t->right->ckey)){
+        if(t->right==NULL ){
             struct node *temp=NULL;
             t->right = t->left;
             t->left = temp;
@@ -142,7 +142,7 @@ void shiftfromright(struct node *t){
             while(x--) s = s->next;
             s->next = NULL;
         }
-        //if(leaf(t->right) && sizeofn(t->right)==0) t->right=NULL;
+        
         if(t->right!=NULL) shiftfromright(t->right);
     }
 }
@@ -159,6 +159,10 @@ struct node * combineoperation(struct node *t1, struct node * t2){
     return t;
 }
 struct listoftrees* meld(struct listoftrees *t1,struct listoftrees* t2){
+    if(t1==NULL&& t2==NULL) return NULL;
+    else if(t1==NULL || t2==NULL){
+        return (t1==NULL)? t2 : t1;
+    }
     struct listoftrees *t =NULL;
     t= (struct listoftrees *)malloc(sizeof(struct listoftrees));
     if(t1!=NULL && t2!=NULL && t1->rank>t2->rank ){
@@ -221,30 +225,27 @@ struct listoftrees* meld(struct listoftrees *t1,struct listoftrees* t2){
     return t;
 }
 
-struct list * deletefrmll(struct list*t,int n){
-    struct list * s1 = t;
-    struct list * s2 = NULL;
-    if(t!=NULL)  s2 = t->next;
-    if(s1->key==n){
-        s1->next=NULL;
-        t=s2;
-        return t;
+void deletefrmll(struct list ** head_ref, int key){
+    struct list *temp = *head_ref, *prev;
+
+    if (temp != NULL && temp->key == key) {
+        *head_ref = temp->next;
+        return;
     }
-    while(s2!=NULL){
-        if(s2->key==n){
-            s1 = s2->next;
-            break;
-        }
-        s1=s1->next;
-        s2=s2->next;
+    while (temp != NULL && temp->key != key) {
+        prev = temp;
+        temp = temp->next;
     }
-    return t;
+    if (temp == NULL)
+        return;
+    prev->next = temp->next;
 }
+ 
 struct node* deletefrmnode(struct node*t,int n,int *p){
     struct list*s=t->ofkeys;
     while(s!=NULL){
         if(s->key==n){
-            t->ofkeys = deletefrmll(t->ofkeys,n);
+            deletefrmll(&(t->ofkeys),n);
             *p = 1;
         }
         s=s->next;
@@ -268,6 +269,7 @@ struct listoftrees * delete (struct listoftrees *t,int n){
             else temp=temp->next;
         }
     }
+    if(temp==NULL && k==0) printf("Data not found.\n");
     return t;
 }
 
@@ -291,7 +293,7 @@ void traverse(struct listoftrees *t){
     printf("The list of trees is of the size : %d\n",lengthoftree(t));
     int x = lengthoftree(t);
     for(int i=0;i<x;i++){
-        printf("\n****Rank of the tree is : %d****\n",t->rank);
+        printf("\n****Rank of the tree is : %d ****\n",t->rank);
         inordertraverse(t->x);
         t = t->next;
     }
@@ -306,36 +308,123 @@ void addifleaf(struct node*t,struct list**ofleaves){
 }
 void minckey(struct listoftrees*t){
     struct list * ofleaves = NULL;
-    //ofleaves = (struct list *)malloc(sizeof(struct list ));
+    
     for(int i=0;i<lengthoftree(t);i++){
         addifleaf(t->x,&ofleaves);
         t=t->next;
     }
-    int min=100000;
+    int min=2147483647;
     while(ofleaves!=NULL){
         if(min>ofleaves->key) min = ofleaves->key;
         ofleaves = ofleaves->next;
     }
-    printf("Minimum ckey is %d\n",min);
+    if(min!=2147483647) printf("Minimum ckey is %d\n",min);
 }
 
 int main(){
-    struct listoftrees *mytrees = NULL;
-    mytrees = initialize_listoftrees(mytrees,25,30);
-    
-    struct listoftrees *other=NULL;
-    other = initialize_listoftrees(other,8,32);
-    mytrees = meld(mytrees,other);
-    
-    struct listoftrees *mytrees1 = NULL;
-    mytrees1 = initialize_listoftrees(mytrees1,2,9);
-    
-    struct listoftrees *other1=NULL;
-    other1 = initialize_listoftrees(other1,5,10);
-    mytrees1 = meld(mytrees1,other1);
-
-    struct listoftrees * tree = NULL;
-    tree = meld(mytrees,mytrees1);
-    traverse(tree);
-       
+    char c = '\0';
+    printf("Enter 'E' for operations on existing tree and 'C' for creating a tree - ");
+    scanf(" %c",&c);
+    if(c=='C'){
+    int x=-1;
+    struct listoftrees *temp = NULL;
+    struct listoftrees *tree = NULL;
+    while(x!=0){
+        printf("Enter the number based on the choice.\n");
+        printf("1 - for inserting in the tree\n");
+        printf("2 - for deleting the element.\n");
+        printf("3 - for printing the tree or traversal.\n");
+        printf("4 - for getting minimum ckey.\n");
+        printf("0 - to exit\n");
+        scanf(" %d",&x);
+        if(x==1) {
+            printf("Enter the maximum limit of the key(ckey) and key value\n");
+            int c = 0,k=0;
+            scanf(" %d %d",&c,&k);
+            temp = NULL;
+            temp = initialize_listoftrees(temp,k,c);
+            tree = meld(tree,temp);
+        }
+        else if(x==2){
+            printf("Enter the data to delete it prints deleted if data is present and deleted ");
+            int x=0;scanf(" %d",&x);
+            tree = delete(tree,x);
+        }
+        else if(x==3){
+            traverse(tree);
+        }
+        else if(x==4) minckey(tree);
+        else if(x==0) break;
+    }
+    }
+    else if(c=='E'){
+    printf("The below tree is a tree of ranks 3,2\n");
+    struct listoftrees *temp = NULL;
+    struct listoftrees *tree = NULL;
+    int max =100,key=10;
+    int i=2;
+    while(i--){
+        temp = NULL;
+        temp = initialize_listoftrees(temp,(key++),(max++));
+        tree = meld(tree,temp);
+    }
+    struct listoftrees *tree1 = NULL;i=2;
+    while(i--){
+        temp = NULL;
+        temp = initialize_listoftrees(temp,(key++),(max++));
+        tree1 = meld(tree1,temp);
+    }
+    tree = meld(tree,tree1);
+    struct listoftrees *tempo = NULL;
+    struct listoftrees *treeo = NULL;
+    max =200;key=20;
+    i=2;
+    while(i--){
+        tempo = NULL;
+        tempo = initialize_listoftrees(tempo,(key++),(max++));
+        treeo = meld(treeo,temp);
+    }
+    struct listoftrees *treeo1 = NULL;i=2;
+    while(i--){
+        tempo = NULL;
+        tempo = initialize_listoftrees(tempo,(key++),(max++));
+        treeo1 = meld(treeo1,tempo);
+    }
+    treeo = meld(treeo,treeo1);
+    tree = meld(tree,treeo);
+    i=2;
+    while(i--){
+        temp = NULL;
+        temp = initialize_listoftrees(temp,(key++),(max++));
+        tree = meld(tree,temp);
+    }
+    tree1 = NULL;i=2;
+    while(i--){
+        temp = NULL;
+        temp = initialize_listoftrees(temp,(key++),(max++));
+        tree1 = meld(tree1,temp);
+    }
+    tree = meld(tree,tree1);
+    i=2;
+    traverse(tree);  
+    int x=-1;
+    while(x!=0){
+        printf("Enter the number based on the choice.\n");
+        printf("1 - for deleting the element.\n");
+        printf("2 - for printing the tree or traversal.\n");
+        printf("3 - for getting minimum ckey.\n");
+        printf("0 - to exit\n");
+        scanf(" %d",&x);
+        if(x==1){
+            printf("Enter the data to delete it prints deleted if data is present and deleted ");
+            int x=0;scanf(" %d",&x);
+            tree = delete(tree,x);
+        }
+        else if(x==2){
+            traverse(tree);
+        }
+        else if(x==3) minckey(tree);
+        else if(x==0) break;
+    }
+    }
 }
