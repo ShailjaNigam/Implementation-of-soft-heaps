@@ -308,8 +308,8 @@ void addifleaf(struct node*t,struct list**ofleaves){
 }
 void minckey(struct listoftrees*t){
     struct list * ofleaves = NULL;
-    
-    for(int i=0;i<lengthoftree(t);i++){
+    int g = lengthoftree(t);
+    for(int i=0;i<g;i++){
         addifleaf(t->x,&ofleaves);
         t=t->next;
     }
@@ -346,7 +346,7 @@ int main(){
             tree = meld(tree,temp);
         }
         else if(x==2){
-            printf("Enter the data to delete it prints deleted if data is present and deleted ");
+            printf("Enter the data to delete  ");
             int x=0;scanf(" %d",&x);
             tree = delete(tree,x);
         }
@@ -416,7 +416,7 @@ int main(){
         printf("0 - to exit\n");
         scanf(" %d",&x);
         if(x==1){
-            printf("Enter the data to delete it prints deleted if data is present and deleted ");
+            printf("Enter the data to delete ");
             int x=0;scanf(" %d",&x);
             tree = delete(tree,x);
         }
