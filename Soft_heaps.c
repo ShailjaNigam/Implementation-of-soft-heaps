@@ -18,11 +18,12 @@ struct listoftrees{
     struct listoftrees *next;
 };
 
-
+//Finds whether a node is leaf or not
 int leaf(struct node *t){
     if(t->left==NULL && t->right==NULL) return 1;
     else return 0;
 }
+//Returns the size of linkedlist present at the node.
 int sizeofn(struct node *t){
     if(t->ofkeys==NULL) return 0;
     else{
@@ -34,6 +35,7 @@ int sizeofn(struct node *t){
         return x;
     }
 }
+//Returns number of node in th tree.
 int lengthoftree(struct listoftrees *t){
     if(t==NULL) return 0;
     else{
@@ -46,6 +48,7 @@ int lengthoftree(struct listoftrees *t){
         return x;
     }
 }
+//It takes two linked lists and returns the concatenated linked list.
 struct list * concatenate(struct list *t1,struct list *t2){
     if(t1==NULL||t2==NULL) {
         return (t1==NULL)? t2 : t1;
@@ -59,6 +62,7 @@ struct list * concatenate(struct list *t1,struct list *t2){
     return t1;
 }
 
+//It takes a key value and pointer to the linked list and inserts in the same.
 struct list * insert_in_simplell(struct list *l,int k){
     if(l==NULL){
         l=(struct list *)malloc(sizeof(struct list));
@@ -75,6 +79,7 @@ struct list * insert_in_simplell(struct list *l,int k){
     return l;
 }
 
+//This function initializes the list of trees which is called as soft heaps.
 struct listoftrees *initialize_listoftrees(struct listoftrees *t ,int key1,int ckey1){
     t = (struct listoftrees *)malloc(sizeof(struct listoftrees));
     t->rank = 1;
@@ -87,6 +92,8 @@ struct listoftrees *initialize_listoftrees(struct listoftrees *t ,int key1,int c
     t->next = NULL;
 }
 
+//This function checks the minimum keys in the node if not present it 
+//will shift the keys which are in linked list of left node to the parent node.
 void shiftfromleft(struct node *t){
     if(leaf(t)) return ;
     else if(sizeofn(t) < softsize/2){
@@ -117,6 +124,8 @@ void shiftfromleft(struct node *t){
     }
 }
 
+//This function checks the minimum keys in the node if not present it 
+//will shift the keys which are in linked list of right node to the parent node.
 void shiftfromright(struct node *t){
     if(leaf(t)) return ;
     else if(sizeofn(t) < softsize/2){
@@ -147,6 +156,8 @@ void shiftfromright(struct node *t){
     }
 }
 
+//It combines the two nodes of same rank into one node of rank+1.
+//It calls the two values shiftfromleft and shiftfromright .
 struct node * combineoperation(struct node *t1, struct node * t2){
     struct node *t = NULL;
     t = (struct node *)malloc(sizeof(struct node));
@@ -158,6 +169,9 @@ struct node * combineoperation(struct node *t1, struct node * t2){
     shiftfromright(t);
     return t;
 }
+
+//It takes two list of trees and make them into one list of tree.
+//It calles combine operation if ranks are equal.
 struct listoftrees* meld(struct listoftrees *t1,struct listoftrees* t2){
     if(t1==NULL&& t2==NULL) return NULL;
     else if(t1==NULL || t2==NULL){
@@ -225,6 +239,7 @@ struct listoftrees* meld(struct listoftrees *t1,struct listoftrees* t2){
     return t;
 }
 
+//It is a simple delete function in the linked ist.
 void deletefrmll(struct list ** head_ref, int key){
     struct list *temp = *head_ref, *prev;
 
@@ -240,7 +255,9 @@ void deletefrmll(struct list ** head_ref, int key){
         return;
     prev->next = temp->next;
 }
- 
+
+//It takes the value of the key to be deleted and node.
+//It calls the deletefrmll function if key is found.
 struct node* deletefrmnode(struct node*t,int n,int *p){
     struct list*s=t->ofkeys;
     while(s!=NULL){
@@ -258,6 +275,9 @@ struct node* deletefrmnode(struct node*t,int n,int *p){
     if((*p)!=1 && t->right!=NULL&&t->right->ckey >= n) deletefrmnode(t->right,n,p);
     return t;
 }
+
+//This is the main delete function uses above two functions to delete 
+//the key entered.
 struct listoftrees * delete (struct listoftrees *t,int n){
     struct listoftrees *temp = t;
     int k=0;
@@ -273,6 +293,7 @@ struct listoftrees * delete (struct listoftrees *t,int n){
     return t;
 }
 
+//It is an inorder traversal just as done in the binary trees.
 void inordertraverse(struct node*t){
     if(t!=NULL){
         printf("Value of ckey : %d\n",t->ckey);
@@ -289,6 +310,8 @@ void inordertraverse(struct node*t){
     }
 }
 
+//This function goes through all the trees in the list and 
+//traverses each node by calling above function.
 void traverse(struct listoftrees *t){
     printf("The list of trees is of the size : %d\n",lengthoftree(t));
     int x = lengthoftree(t);
@@ -298,6 +321,8 @@ void traverse(struct listoftrees *t){
         t = t->next;
     }
 }
+
+//This function adds a nodes ckey value if it is a leaf.
 void addifleaf(struct node*t,struct list**ofleaves){
     if(t!=NULL && leaf(t)){
         (*ofleaves) = insert_in_simplell(*ofleaves,t->ckey);
@@ -306,6 +331,9 @@ void addifleaf(struct node*t,struct list**ofleaves){
     addifleaf(t->left,ofleaves);
     addifleaf(t->right,ofleaves);
 }
+
+//As the minimum ckeys are present at the leaves
+//This function calls addifleaf function and lastly finds the minimum from the linked list.
 void minckey(struct listoftrees*t){
     struct list * ofleaves = NULL;
     int g = lengthoftree(t);
@@ -325,6 +353,7 @@ int main(){
     char c = '\0';
     printf("Enter 'E' for operations on existing tree and 'C' for creating a tree - ");
     scanf(" %c",&c);
+    //User can enter E or C based on his choice.
     if(c=='C'){
     int x=-1;
     struct listoftrees *temp = NULL;
@@ -338,6 +367,7 @@ int main(){
         printf("0 - to exit\n");
         scanf(" %d",&x);
         if(x==1) {
+            //if x is one operation to be performed is inserting.
             printf("Enter the maximum limit of the key(ckey) and key value\n");
             int c = 0,k=0;
             scanf(" %d %d",&c,&k);
@@ -346,15 +376,19 @@ int main(){
             tree = meld(tree,temp);
         }
         else if(x==2){
+            //if x is 2 operation to be performed is deleting.
             printf("Enter the data to delete  ");
             int x=0;scanf(" %d",&x);
             tree = delete(tree,x);
         }
         else if(x==3){
+            //if x is 3 operation to be performed is traversing.
             traverse(tree);
         }
-        else if(x==4) minckey(tree);
+        else if(x==4) minckey(tree); 
+        //if x is 4 operation to be performed is finding minimum ckey.
         else if(x==0) break;
+        //if x is 0 it breaks the while loop.
     }
     }
     else if(c=='E'){
@@ -363,6 +397,7 @@ int main(){
     struct listoftrees *tree = NULL;
     int max =100,key=10;
     int i=2;
+    //From lines 401 to 442 it creates a tree of rank 4 and 3.
     while(i--){
         temp = NULL;
         temp = initialize_listoftrees(temp,(key++),(max++));
@@ -416,15 +451,19 @@ int main(){
         printf("0 - to exit\n");
         scanf(" %d",&x);
         if(x==1){
+            //if x is one operation to be performed is deleting.
             printf("Enter the data to delete ");
             int x=0;scanf(" %d",&x);
             tree = delete(tree,x);
         }
         else if(x==2){
+            //if x is 2 operation to be performed is traversing.
             traverse(tree);
         }
         else if(x==3) minckey(tree);
+        //if x is 3 operation to be performed is finding minimum ckey.
         else if(x==0) break;
+        //if x is 0 it breaks the while loop.
     }
     }
 }
