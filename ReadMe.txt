@@ -1,4 +1,4 @@
-CS-201 Course Project
+CS-201 Course Project of DSA
 Soft Heaps
 
 1.Firstly, this code asks user whether user wants to perform operations on existing tree or 
