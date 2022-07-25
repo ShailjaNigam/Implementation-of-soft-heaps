@@ -1,4 +1,4 @@
-cs-201
+CS-201 Course Project
 Soft Heaps
 
 1.Firstly, this code asks user whether user wants to perform operations on existing tree or 
